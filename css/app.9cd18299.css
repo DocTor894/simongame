@@ -1,0 +1,1 @@
+.simon{width:700px;margin:auto;display:grid;grid-template-columns:354px 1fr;grid-gap:20px}.tile{opacity:.6}.border,.lose{display:none}.hoverable{cursor:pointer}.btnStart{padding:10px 20px;background:#fabc37;border:1px solid #fabc37;border-radius:5px;color:#fff}.btnStart:hover{cursor:pointer;background:#fff;border-color:#fabc37;color:#fabc37}#app{font-family:sans-serif}
