@@ -59,7 +59,7 @@
     <div class="menu">
       <h3>Раунд: {{ this.round }}</h3>
       <span class="btnStart" @click="start()">Старт</span>
-      <p class="lose" ref="lose">Вы проиграли. Пройдено {{ this.round }} раундов</p>
+      <p class="lose" ref="lose">Вы проиграли. Пройдено {{ this.round - 1 }} раундов</p>
       <p class="title">Уровень сложности:</p>
       <div class="difficult">
         <p><input type="radio" name="dif" id="easy" value="1500" v-model="difficulty"><label for="easy">Легкий</label></p>
@@ -83,10 +83,9 @@ export default {
     round: 0,
     difficulty: 400,
     roundSequence: [],
-    playerSequence: [],
     copy: [],
     active: Boolean,
-    clicked: Boolean,
+    clicked: false,
     tiles: [
       {
         tileD: "M317 177.5C317 159.049 313.366 140.779 306.305 123.733C299.244 106.687 288.895 91.1981 275.849 78.1515C262.802 65.1049 247.313 54.7557 230.267 47.6949C213.221 40.6341 194.951 37 176.5 37L176.5 177.5H317Z",
@@ -118,8 +117,6 @@ export default {
       this.round = 0;
       this.$refs.lose.style.display = 'none';
       this.roundSequence = [];
-      this.playerSequence = [];
-      this.active = true;
       this.newRound();
     },
     newRound() {
@@ -131,7 +128,7 @@ export default {
     },
     animate() {
       let i = 0;
-			var interval = setInterval(() => {
+			let interval = setInterval(() => {
 				this.playSound(this.roundSequence[i]);
 				this.lightUp(this.roundSequence[i]);
 
@@ -147,16 +144,16 @@ export default {
       setTimeout(() => {
         sounds[elm].currentTime = 0;
         sounds[elm].pause();
-      }, 300)
+      }, 300);
     },
     lightUp(elm) {
       this.$refs.tiles[elm].style.opacity = '1';
       setTimeout(() => {
         this.$refs.tiles[elm].style.opacity = '0.6';
-      }, 300)
+      }, 300);
     },
     registerClick(elm) {
-      this.copy.shift() === elm ? this.active = true : this.active = false;
+      this.active = (this.copy.shift() === elm);
 			this.checkLose();
     },
     tileDown(elm) {
@@ -166,27 +163,20 @@ export default {
     tileUp(elm) {
       this.$refs.tiles[elm].style.opacity = '0.6';
     },
-    deactivateBoard() {
-      this.clicked = false;
-    },
     checkLose() {
       if (this.copy.length === 0 && this.active) {
-				this.deactivateBoard();
+				this.clicked = false;
 				this.newRound();
 			} else if (!this.active) {
-				this.deactivateBoard();
-				this.endGame();
+				this.clicked = false;
+				this.$refs.lose.style.display = 'block';
 			}
     },
-    endGame() {
-      this.$refs.lose.style.display = 'block';
-      this.raund = 0;
-    },
     mouseEnter(elm) {
-      this.$refs.borders[elm].style.display = 'block'
+      this.$refs.borders[elm].style.display = 'block';
     },
     mouseLeave(elm) {
-      this.$refs.borders[elm].style.display = 'none'
+      this.$refs.borders[elm].style.display = 'none';
     }
   },
 };
