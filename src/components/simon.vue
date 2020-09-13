@@ -10,13 +10,16 @@
         <g filter="url(#filter0_d)">
           <circle cx="177" cy="177" r="150" fill="white" />
         </g>
-        <g class="block" v-for="tile in tiles" :key="tile.index">
+        <g class="block" v-for="(tile, index) in tiles" :key="index">
           <path
             :d="tile.tileD"
             class="tile"
             ref="tiles"
-
             :fill="tile.fill"
+            :class="{ hoverable: clicked }"
+            @click="clicked ? registerClick(index) : ''"
+            @mousedown="clicked ? tileDown(index) : ''"
+            @mouseup="clicked ? tileUp(index) : ''"
           />
           <path
             :d="tile.borderD"
@@ -54,7 +57,7 @@
     <div class="menu">
       <h3>Раунд: {{ this.round }}</h3>
       <span class="btnStart" @click="start()">Старт</span>
-      <p ref="lose">Вы проиграли</p>
+      <p class="lose" ref="lose">Вы проиграли. Пройдено {{ this.round }} раундов</p>
       <p class="title">Уровень сложности:</p>
       <div class="difficult">
         <p><input type="radio" name="dif" id="easy" value="1500" v-model="difficulty"><label for="easy">Легкий</label></p>
@@ -69,11 +72,12 @@
 export default {
   data: () => ({
     round: 0,
-    difficulty: 1500,
+    difficulty: 400,
     roundSequence: [],
     playerSequence: [],
     copy: [],
-    active: true,
+    active: Boolean,
+    clicked: Boolean,
     tiles: [
       {
         tileD: "M317 177.5C317 159.049 313.366 140.779 306.305 123.733C299.244 106.687 288.895 91.1981 275.849 78.1515C262.802 65.1049 247.313 54.7557 230.267 47.6949C213.221 40.6341 194.951 37 176.5 37L176.5 177.5H317Z",
@@ -102,14 +106,15 @@ export default {
       return Math.floor(Math.random() * 4);
     },
     start() {
+      this.round = 0;
+      this.$refs.lose.style.display = 'none';
       this.roundSequence = [];
       this.playerSequence = [];
-      this.round = 0;
       this.active = true;
-      this.$refs.lose.style.display = 'none';
       this.newRound();
     },
     newRound() {
+      this.clicked = false;
       this.round += 1;
       this.roundSequence.push(this.randNumber());
       this.copy = this.roundSequence.slice(0);
@@ -122,10 +127,9 @@ export default {
 				this.lightUp(this.roundSequence[i]);
 
         i++;
-        console.log('animate');
 				if (i >= this.roundSequence.length) {
           clearInterval(interval);
-					this.activateSimonBoard();
+					this.clicked = true;
 				}
 			}, this.difficulty);
     },
@@ -136,11 +140,35 @@ export default {
       this.$refs.tiles[elm].style.opacity = '1';
       setTimeout(() => {
         this.$refs.tiles[elm].style.opacity = '0.6';
-      }, 600)
+      }, 150)
     },
-    activateSimonBoard() {
-      console.log('actBord');
-      this.$refs.tiles[0].setAttribute('onclick', 'alert("hi")');
+    registerClick(elm) {
+      this.copy.shift() === elm ? this.active = true : this.active = false;
+			this.checkLose();
+    },
+    tileDown(elm) {
+      this.playSound(elm);
+      this.$refs.tiles[elm].style.opacity = '1';
+    },
+    tileUp(elm) {
+      this.$refs.tiles[elm].style.opacity = '0.6';
+    },
+    deactivateBoard() {
+      this.clicked = false;
+    },
+    checkLose() {
+      if (this.copy.length === 0 && this.active) {
+        console.log('nR');
+				this.deactivateBoard();
+				this.newRound();
+			} else if (!this.active) {
+				this.deactivateBoard();
+				this.endGame();
+			}
+    },
+    endGame() {
+      this.$refs.lose.style.display = 'block';
+      this.raund = 0;
     }
   },
 };
@@ -161,6 +189,14 @@ export default {
 
 .border {
   display: none;
+}
+
+.lose {
+  display: none;
+}
+
+.hoverable {
+  cursor: pointer;
 }
 
 .btnStart {
