@@ -147,13 +147,13 @@ export default {
       setTimeout(() => {
         sounds[elm].currentTime = 0;
         sounds[elm].pause();
-      }, 400)
+      }, 300)
     },
     lightUp(elm) {
       this.$refs.tiles[elm].style.opacity = '1';
       setTimeout(() => {
         this.$refs.tiles[elm].style.opacity = '0.6';
-      }, 400)
+      }, 300)
     },
     registerClick(elm) {
       this.copy.shift() === elm ? this.active = true : this.active = false;
