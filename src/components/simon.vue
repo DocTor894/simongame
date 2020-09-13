@@ -20,6 +20,8 @@
             @click="clicked ? registerClick(index) : ''"
             @mousedown="clicked ? tileDown(index) : ''"
             @mouseup="clicked ? tileUp(index) : ''"
+            @mouseenter="mouseEnter(index)"
+            @mouseleave="mouseLeave(index)"
           />
           <path
             :d="tile.borderD"
@@ -69,6 +71,13 @@
 </template>
 
 <script>
+var sounds = [
+  new Audio(require('../assets/sounds/1.mp3')),
+  new Audio(require('../assets/sounds/2.mp3')),
+  new Audio(require('../assets/sounds/3.mp3')),
+  new Audio(require('../assets/sounds/4.mp3')),
+];
+
 export default {
   data: () => ({
     round: 0,
@@ -134,13 +143,17 @@ export default {
 			}, this.difficulty);
     },
     playSound(elm) {
-
+      sounds[elm].play();
+      setTimeout(() => {
+        sounds[elm].currentTime = 0;
+        sounds[elm].pause();
+      }, 400)
     },
     lightUp(elm) {
       this.$refs.tiles[elm].style.opacity = '1';
       setTimeout(() => {
         this.$refs.tiles[elm].style.opacity = '0.6';
-      }, 150)
+      }, 400)
     },
     registerClick(elm) {
       this.copy.shift() === elm ? this.active = true : this.active = false;
@@ -158,7 +171,6 @@ export default {
     },
     checkLose() {
       if (this.copy.length === 0 && this.active) {
-        console.log('nR');
 				this.deactivateBoard();
 				this.newRound();
 			} else if (!this.active) {
@@ -169,6 +181,12 @@ export default {
     endGame() {
       this.$refs.lose.style.display = 'block';
       this.raund = 0;
+    },
+    mouseEnter(elm) {
+      this.$refs.borders[elm].style.display = 'block'
+    },
+    mouseLeave(elm) {
+      this.$refs.borders[elm].style.display = 'none'
     }
   },
 };
